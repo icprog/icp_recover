@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/images"/>
+    <qresource prefix="/icons">
+        <file>exit.ico</file>
+        <file>checkered_flag.ico</file>
+        <file>kfilereplace.ico</file>
+        <file>db_comit_5329.ico</file>
+    </qresource>
+</RCC>
