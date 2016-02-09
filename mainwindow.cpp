@@ -25,14 +25,14 @@ struct uzel
     QString IP_addr;
     QString OdbcName;
     QString TableName;
-    QString type;  //"vosn","1uvr2nord","4uvr"
+    QString type;  //"vosn","1uvr2nord","1uvr2nord1mm","4uvr","gaz"
     QString text;
     QString dt;
 } uzels[]=
 {
 
 
-    "LELAKI","172.16.9.243","fire_lelaki","LELAKI_SOU","vosn","","",
+    "LELAKI","172.16.223.2","fire_lelaki","LELAKI_SOU","vosn","","",
 
     "GGPZ_GNED","172.16.57.69","fire_ggpz_gned","GGPZ_GNED_SOU","vosn","","",
     "GGPZ_LELAKI_VHOD","172.16.57.70","fire_ggpz_lelaki_vhod","GGPZ_LELAKI_VHOD_SOU","vosn","","",
@@ -40,10 +40,12 @@ struct uzel
 
     "GGPZ_Z_OS","172.16.57.75","fire_ggpz_z_os","GGPZ_Z_OS_SOU","vosn","","",
     "GGPZ_Z_UPS","172.16.57.76","fire_ggpz_z_ups","GGPZ_Z_UPS_SOU","vosn","","",
-    "GGPZ_Z_KSU","172.16.57.78","fire_ggpz_z_ksu","GGPZ_Z_KSU_SOU","1uvr2nord","","",
+    "GGPZ_Z_KSU","172.16.57.78","fire_ggpz_z_ksu","GGPZ_Z_KSU_SOU","1uvr2nord1mm","","",
     "GZU1_GNED",  "172.16.57.20","fire_gzu1_gned","GZU1_GNED_SOU","vosn","","",
     "GGPZ_4VOV","172.16.57.74","fire_ggpz_4vov","GGPZ_4VOV_SOU","4uvr","","",
     "YAROSHIV","172.16.48.100","fire_yaroshiv","YAROSHIV_SOU","vosn","","",
+    "TALAL_Z_YAROSHIV","172.16.48.102","fire_talal_z_yaroshiv","TALAL_Z_YAROSHIV_SOU","vosn","","",
+    "GGPZ_GAZ","172.16.57.72","fire_ggpz_gaz","GGPZ_GAZ","gaz","","",
 };
 //==========================================================================================
 QString GetNextName()
@@ -62,10 +64,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->pushButtonCheckHour,SIGNAL(clicked()),this,SLOT(PushButtonCheckHour()));
+    //connect(ui->pushButtonCheckHour,SIGNAL(clicked()),this,SLOT(PushButtonCheckHour()));
     connect(ui->pushButtonCheckDay,SIGNAL(clicked()),this,SLOT(PushButtonCheckDay()));
-    connect(ui->pushButtonRecoveryHour,SIGNAL(clicked()),this,SLOT(PushButtonRecoveryHour()));
+    //connect(ui->pushButtonRecoveryHour,SIGNAL(clicked()),this,SLOT(PushButtonRecoveryHour()));
     connect(ui->pushButtonRecoveryDay,SIGNAL(clicked()),this,SLOT(PushButtonRecoveryDay()));
+    connect(ui->pushButtonClose,SIGNAL(clicked()),this,SLOT(close()));
 
     for(int i=0;i<sizeof(uzels)/sizeof(uzel);++i)
     {
@@ -626,6 +629,216 @@ return ret;
 
 }
 //==========================================================================================
+int RecoveryHour1Uvr2Nord1MM(uzel *p_uzel, uint year_,uint month_, uint day_,uint hour_)
+{
+
+    int ret=0;
+
+    modbus_t *mb;
+    uint16_t tab_reg[100];
+
+    uint16_t flag;
+    uint16_t line;
+
+    uint16_t year;
+    uint16_t month;
+    uint16_t day;
+    uint16_t hour;
+    //uvr
+    float m_rUvrVolFlow_avg;
+    float m_rUvrVolTotal;
+    float d_rUvrObjem;
+    //NORD 1
+    float d_rNORD1_VolFlow_avg;
+    float d_rNORD1_Objem;
+    //NORD 2
+    float d_rNORD2_VolFlow_avg;
+    float d_rNORD2_Objem;
+    //MM
+    //masstotal
+    float mass_total;
+    float vol_total;
+    float d_rMassFlow_avg;
+    float d_rVolFlow_avg;
+    float d_rDens_avg;
+    float d_rObjemRidRU_MM;
+    float d_rMassaRid_MM;
+
+
+    uint16_t alarmsCode;
+    uint16_t alarmsTimeSec;
+    uint16_t WhichKoeffSaved;
+
+
+    mb = modbus_new_tcp(p_uzel->IP_addr.toStdString().c_str(), 502);
+
+    if (modbus_connect(mb)!=0 )
+    {
+        //QMessageBox::information(this,"Test","Зв'язок з об'єктом відсутній!!!",QMessageBox::Ok);
+        ret=-1;
+        p_uzel->text="Error connect to modbus interface";
+        //emit textchange(i, "No connection with source");
+    }
+    else //connect OK
+    {
+        modbus_set_slave(mb, 1);
+
+        tab_reg[FLAG]=1;
+        tab_reg[LINE]=1;
+        tab_reg[YEAR]=year_;
+        tab_reg[MONTH]=month_;
+        tab_reg[DAY]=day_;
+        tab_reg[HOUR]=hour_;
+
+        if (modbus_write_registers(mb, 499, 7, tab_reg)==7)  //query data
+        {
+            Sleep(3000);
+
+            int res=modbus_read_registers(mb, 499, 27, tab_reg);
+
+            if (res!=27)
+            {
+                ret=-3;
+                p_uzel->text="Error read from modbus";
+
+            }
+            else //read OK
+            {
+
+                flag=tab_reg[0];
+                line=tab_reg[1];
+                year=tab_reg[3];
+                month=tab_reg[4];
+                day=tab_reg[5];
+                hour=tab_reg[6];
+
+                if (flag==0 && line==1 && year==year_ && month==month_ && day==day_ && hour==hour_)
+                {
+
+                    //uvr
+                    m_rUvrVolFlow_avg=modbus_get_float(&tab_reg[7]);
+                    m_rUvrVolTotal=modbus_get_float(&tab_reg[9]);
+                    d_rUvrObjem=modbus_get_float(&tab_reg[11]);
+                    //NORD 1
+                    d_rNORD1_VolFlow_avg=modbus_get_float(&tab_reg[13]);
+                    d_rNORD1_Objem=modbus_get_float(&tab_reg[15]);
+                    //NORD 2
+                    d_rNORD2_VolFlow_avg=modbus_get_float(&tab_reg[17]);
+                    d_rNORD2_Objem=modbus_get_float(&tab_reg[19]);
+
+                    //MM
+                    mass_total=modbus_get_float(&tab_reg[21]);
+                    vol_total=modbus_get_float(&tab_reg[23]);
+                    d_rMassFlow_avg=modbus_get_float(&tab_reg[25]);
+                    d_rVolFlow_avg=modbus_get_float(&tab_reg[27]);
+                    d_rDens_avg=modbus_get_float(&tab_reg[29]);
+                    d_rObjemRidRU_MM=modbus_get_float(&tab_reg[31]);
+                    d_rMassaRid_MM=modbus_get_float(&tab_reg[33]);
+
+                    alarmsCode=tab_reg[35];
+                    alarmsTimeSec=tab_reg[36];
+                    WhichKoeffSaved=tab_reg[37];
+
+
+                    QString connectionName=GetNextName();
+
+                        {  // start of the block where the db object lives
+
+                            QSqlDatabase db = QSqlDatabase::addDatabase("QODBC",connectionName);
+                                  db.setDatabaseName(p_uzel->OdbcName);
+                                  db.setUserName("sysdba");//user);
+                                  db.setPassword("784523");//pass);
+                            if (db.open())
+                            {
+
+                                QSqlQuery sqlQuery(db);
+                                QString query;
+
+                                query.sprintf(QString("INSERT INTO " + p_uzel->TableName + "(" +
+                                              "DT, UVRVOLFLOW, UVRVOLTOTAL, UVROBJEM, " +
+                                              "NORD1_VOLFLOW, NORD1_OBJEM, NORD2_VOLFLOW, NORD2_OBJEM, "+
+                                              "MM_MASSTOTAL, MM_VOLTOTAL, MM_MASSFLOW, MM_VOLFLOW, MM_DENS, MM_OBJEMRIDRU, MM_MASSARID, "+
+                                              "ALARMSCODE , ALARMSTIMESEC, WHICHKOEFFSAVED) "
+                                              "VALUES ("+
+                                              "'%i.%i.%i %i:00:00', %f, %f, %f, "+
+                                              "%f, %f, %f, %f, " +
+                                              "%f, %f, %f, %f, %f, %f, %f, " +
+                                              "%i, %i, %i)").toStdString().c_str(),
+                                              day,month,year,hour,m_rUvrVolFlow_avg,m_rUvrVolTotal,d_rUvrObjem,
+                                              d_rNORD1_VolFlow_avg,d_rNORD1_Objem,d_rNORD2_VolFlow_avg,d_rNORD2_Objem,
+                                              mass_total,vol_total,d_rMassFlow_avg,d_rVolFlow_avg,d_rDens_avg,d_rObjemRidRU_MM,d_rMassaRid_MM,
+                                              alarmsCode, alarmsTimeSec, WhichKoeffSaved
+                                              );
+
+                                                  //  emit insert(query);
+
+                                    sqlQuery.exec(query);
+
+                                    if (sqlQuery.lastError().isValid())
+                                    {
+                                        //QMessageBox::critical(NULL, QObject::tr("Database Error"), sqlQuery.lastError().text());
+                                        //emit textchange(i,"ERROR: Database error on INSERT");
+                                        ret=-5;
+                                        p_uzel->text="ERROR: Database error on INSERT";
+                                    }
+                                    else
+                                    {
+                                        //QMessageBox::information(NULL, tr("Информация"), "Запись удалена успешно.");
+                                        //emit textchange(i,"INSERT OK");
+                                        ret=1;
+                                        p_uzel->text="Data recover succesfully";
+                                    }
+
+
+
+
+                            }
+                            else
+                            {
+                                //QMessageBox::critical(NULL, QObject::tr("Database Error"), db.lastError().text());
+                                //emit insert(db.lastError().databaseText());
+                                //emit insert(db.lastError().driverText());
+                                //emit textchange(i,"ERROR: Database not open");
+                                ret=-6;
+                                p_uzel->text="ERROR: Database open error";
+                            }
+
+                            db.close();
+                        } // end of the block where the db object lives, it will be destroyed here
+
+                        QSqlDatabase::removeDatabase(connectionName);
+
+                    //insert to DB end
+
+
+
+
+                }
+                else
+                {
+                    p_uzel->text="No data in PLC archive";
+                    ret=-4;
+                }
+
+            }
+        }
+        else
+        {
+            ret=-2;
+            p_uzel->text="Error write query data to modbus";
+        }
+
+
+
+    }
+
+        modbus_close(mb);
+        modbus_free(mb);
+
+return ret;
+
+}
+//==========================================================================================
 int RecoveryHour4Uvr(uzel *p_uzel, uint year_,uint month_, uint day_,uint hour_)
 {
     int ret=0;
@@ -691,9 +904,9 @@ int RecoveryHour4Uvr(uzel *p_uzel, uint year_,uint month_, uint day_,uint hour_)
         {
             Sleep(3000);
 
-            int res=modbus_read_registers(mb, 499, 27, tab_reg);
+            int res=modbus_read_registers(mb, 499, 34, tab_reg);
 
-            if (res!=27)
+            if (res!=34)
             {
                 ret=-3;
                 p_uzel->text="Error read from modbus";
@@ -728,7 +941,7 @@ int RecoveryHour4Uvr(uzel *p_uzel, uint year_,uint month_, uint day_,uint hour_)
                     d_rUvr3_Objem=modbus_get_float(&tab_reg[23]);;
 
                     //uvr 4
-                    m_rUvr4_VolFlow_avg=modbus_get_float(&tab_reg[26]);;
+                    m_rUvr4_VolFlow_avg=modbus_get_float(&tab_reg[25]);;
                     m_rUvr4_VolTotal=modbus_get_float(&tab_reg[27]);;
                     d_rUvr4_Objem=modbus_get_float(&tab_reg[29]);;
 
@@ -837,22 +1050,242 @@ int RecoveryHour4Uvr(uzel *p_uzel, uint year_,uint month_, uint day_,uint hour_)
 
 return ret;
 }
+//==========================================================================================
+int RecoveryHourGaz(uzel *p_uzel, uint year_,uint month_, uint day_,uint hour_)
+{
 
+    int ret=0;
+
+    modbus_t *mb;
+    uint16_t tab_reg[100];
+
+    uint16_t flag;
+    uint16_t line;
+
+    uint16_t year;
+    uint16_t month;
+    uint16_t day;
+    uint16_t hour;
+    float plotn_nom;
+    float N_N2;
+    float N_CO2;
+    float D_it_20;
+    float d_su_20;
+    float a0_su;
+    float a1_su;
+    float a2_su;
+    float Ra;
+    float Rn;
+    float Interval;
+
+
+    //средних, делить на cycle_count
+    float d_rTemp_avg;
+    float d_rTisk_avg;
+    float d_rPerepad_avg;
+    float d_rVolFlowSU_avg;
+
+
+    //накопленные
+    float d_rObjemGazuSU;
+    float d_rMassaGazu;  //d_rObjemGazonasZnevodnNafRU_MM_SOU
+
+    float rep_rezerv1;
+    float rep_rezerv2;
+
+
+    uint16_t alarmsCode;
+    uint16_t alarmsTimeSec;
+    uint16_t WhichKoeffSaved;
+
+
+    mb = modbus_new_tcp(p_uzel->IP_addr.toStdString().c_str(), 502);
+
+    if (modbus_connect(mb)!=0 )
+    {
+        //QMessageBox::information(this,"Test","Зв'язок з об'єктом відсутній!!!",QMessageBox::Ok);
+        ret=-1;
+        p_uzel->text="Error connect to modbus interface";
+        //emit textchange(i, "No connection with source");
+    }
+    else //connect OK
+    {
+        modbus_set_slave(mb, 1);
+
+        tab_reg[FLAG]=1;
+        tab_reg[LINE]=1;
+        tab_reg[YEAR]=year_;
+        tab_reg[MONTH]=month_;
+        tab_reg[DAY]=day_;
+        tab_reg[HOUR]=hour_;
+
+        if (modbus_write_registers(mb, 499, 7, tab_reg)==7)  //query data
+        {
+            Sleep(3000);
+
+            int res=modbus_read_registers(mb, 499, 51, tab_reg);
+
+            if (res!=51)
+            {
+                ret=-3;
+                p_uzel->text="Error read from modbus";
+
+            }
+            else //read OK
+            {
+
+                flag=tab_reg[0];
+                line=tab_reg[1];
+                year=tab_reg[3];
+                month=tab_reg[4];
+                day=tab_reg[5];
+                hour=tab_reg[6];
+
+                if (flag==0 && line==1 && year==year_ && month==month_ && day==day_ && hour==hour_)
+                {
+                    plotn_nom=modbus_get_float(&tab_reg[7]);
+                     N_N2=modbus_get_float(&tab_reg[9]);
+                     N_CO2=modbus_get_float(&tab_reg[11]);
+                     D_it_20=modbus_get_float(&tab_reg[13]);
+                     d_su_20=modbus_get_float(&tab_reg[15]);
+                     a0_su=modbus_get_float(&tab_reg[17]);
+                     a1_su=modbus_get_float(&tab_reg[19]);
+                     a2_su=modbus_get_float(&tab_reg[21]);
+
+
+                     Ra=modbus_get_float(&tab_reg[23]);
+                     Rn=modbus_get_float(&tab_reg[25]);
+                     Interval=modbus_get_float(&tab_reg[27]);
+                     //средних, делить на cycle_count
+                     d_rTemp_avg=modbus_get_float(&tab_reg[29]);
+                     d_rTisk_avg=modbus_get_float(&tab_reg[31]);
+                     d_rPerepad_avg=modbus_get_float(&tab_reg[33]);
+                     d_rVolFlowSU_avg=modbus_get_float(&tab_reg[35]);
+                     //накопленные
+                     d_rObjemGazuSU=modbus_get_float(&tab_reg[37]);
+                     d_rMassaGazu=modbus_get_float(&tab_reg[39]);
+                     //rep_rezerv1=modbus_get_float(&tab_reg[41]);
+                     //rep_rezerv2=modbus_get_float(&tab_reg[43]);
+
+                    alarmsCode=tab_reg[45];
+                    alarmsTimeSec=tab_reg[46];
+                    WhichKoeffSaved=tab_reg[47];
+
+
+                    QString connectionName=GetNextName();
+
+                        {  // start of the block where the db object lives
+
+                            QSqlDatabase db = QSqlDatabase::addDatabase("QODBC",connectionName);
+                                  db.setDatabaseName(p_uzel->OdbcName);
+                                  db.setUserName("sysdba");//user);
+                                  db.setPassword("784523");//pass);
+                            if (db.open())
+                            {
+
+                                QSqlQuery sqlQuery(db);
+                                QString query;
+
+                                    query.sprintf(QString("INSERT INTO " + p_uzel->TableName + "(" +
+                                                          "DT, TEMP, TISK, PEREPAD, VOLFLOWSU, " +
+                                                          "PLOTN_NOM, N_N2, N_CO2, D_IT_20, D_SU_20, A0_SU, A1_SU, A2_SU, " +
+                                                          "RA, RN, INTERVAL, OBJEMGAZUSU, MASSAGAZU, "+
+                                                          "ALARMSCODE , ALARMSTIMESEC, WHICHKOEFFSAVED) "
+                                                          "VALUES ("+
+                                                          "'%i.%i.%i %i:00:00', %f, %f, %f, %f, "+
+                                                          "%f, %f, %f, %f, %f, %f, %f, %f, " +
+                                                          "%f, %f, %f, %f, %f, " +
+                                                          "%i, %i, %i)").toStdString().c_str(),
+                                                          day,month,year,hour,d_rTemp_avg,d_rTisk_avg,d_rPerepad_avg,d_rVolFlowSU_avg,
+                                                          plotn_nom,N_N2,N_CO2,D_it_20,d_su_20,a0_su,a1_su,a2_su,
+                                                          Ra,Rn,Interval,d_rObjemGazuSU,d_rMassaGazu,
+                                                          alarmsCode, alarmsTimeSec, WhichKoeffSaved
+                                                          );
+
+                                                  //  emit insert(query);
+
+                                    sqlQuery.exec(query);
+
+                                    if (sqlQuery.lastError().isValid())
+                                    {
+                                        //QMessageBox::critical(NULL, QObject::tr("Database Error"), sqlQuery.lastError().text());
+                                        //emit textchange(i,"ERROR: Database error on INSERT");
+                                        ret=-5;
+                                        p_uzel->text="ERROR: Database error on INSERT";
+                                    }
+                                    else
+                                    {
+                                        //QMessageBox::information(NULL, tr("Информация"), "Запись удалена успешно.");
+                                        //emit textchange(i,"INSERT OK");
+                                        ret=1;
+                                        p_uzel->text="Data recover succesfully";
+                                    }
+
+
+
+
+                            }
+                            else
+                            {
+                                //QMessageBox::critical(NULL, QObject::tr("Database Error"), db.lastError().text());
+                                //emit insert(db.lastError().databaseText());
+                                //emit insert(db.lastError().driverText());
+                                //emit textchange(i,"ERROR: Database not open");
+                                ret=-6;
+                                p_uzel->text="ERROR: Database open error";
+                            }
+
+                            db.close();
+                        } // end of the block where the db object lives, it will be destroyed here
+
+                        QSqlDatabase::removeDatabase(connectionName);
+
+                    //insert to DB end
+
+
+
+
+                }
+                else
+                {
+                    p_uzel->text="No data in PLC archive";
+                    ret=-4;
+                }
+
+            }
+        }
+        else
+        {
+            ret=-2;
+            p_uzel->text="Error write query data to modbus";
+        }
+
+
+
+    }
+
+        modbus_close(mb);
+        modbus_free(mb);
+
+return ret;
+
+}
 //==========================================================================================
 int RecoveryHour(uzel *p_uzel, uint year_,uint month_, uint day_,uint hour_)
 {
     int ret=0;
     if (p_uzel->type=="vosn") {ret= RecoveryHourVosn(p_uzel,year_,month_, day_,hour_);}
     if (p_uzel->type=="1uvr2nord") {ret= RecoveryHour1Uvr2Nord(p_uzel, year_,month_, day_,hour_);}
+    if (p_uzel->type=="1uvr2nord1mm") {ret= RecoveryHour1Uvr2Nord1MM(p_uzel, year_,month_, day_,hour_);}
     if (p_uzel->type=="4uvr") {ret= RecoveryHour4Uvr(p_uzel, year_,month_, day_,hour_);}
-
+    if (p_uzel->type=="gaz") {ret= RecoveryHourGaz(p_uzel, year_,month_, day_,hour_);}
 return ret;
 }
 
 //==========================================================================================
 void MainWindow::PushButtonCheckHour()
 {
-
+/*
     int number_in_uzel_array=ui->listWidget->currentRow();
 
 
@@ -880,6 +1313,7 @@ void MainWindow::PushButtonCheckHour()
     }
 
     ui->listWidget_history->scrollToBottom();
+*/
 }
 //============================================================================================
 void MainWindow::PushButtonCheckDay()
@@ -923,6 +1357,7 @@ void MainWindow::PushButtonCheckDay()
 //============================================================================================
 void MainWindow::PushButtonRecoveryHour()
 {
+/*
     int number_in_uzel_array=ui->listWidget->currentRow();
 
 
@@ -958,7 +1393,7 @@ void MainWindow::PushButtonRecoveryHour()
 
     }
     ui->listWidget_history->scrollToBottom();
-
+*/
 }
 //============================================================================================
 void MainWindow::PushButtonRecoveryDay()

@@ -14,7 +14,7 @@
    <string>Recovery reports data form ICPCON controllers</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -43,22 +43,18 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="gridVisible">
          <bool>false</bool>
         </property>
         <property name="horizontalHeaderFormat">
          <enum>QCalendarWidget::ShortDayNames</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTimeEdit" name="timeEdit">
-        <property name="font">
-         <font>
-          <pointsize>16</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
         </property>
        </widget>
       </item>
@@ -77,31 +73,6 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QPushButton" name="pushButtonCheckHour">
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>13</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Check HOUR in DB</string>
-        </property>
-        <property name="icon">
-         <iconset resource="res.qrc">
-          <normaloff>:/icons/checkered_flag.ico</normaloff>:/icons/checkered_flag.ico</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>48</width>
-          <height>48</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="pushButtonCheckDay">
         <property name="font">
          <font>
@@ -112,36 +83,11 @@
          </font>
         </property>
         <property name="text">
-         <string>Check DAY in DB</string>
+         <string>Check DAY in DB (почасово 00:00-23:00 вкл.)</string>
         </property>
         <property name="icon">
          <iconset resource="res.qrc">
           <normaloff>:/icons/checkered_flag.ico</normaloff>:/icons/checkered_flag.ico</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>48</width>
-          <height>48</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButtonRecoveryHour">
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>13</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Recovery HOUR</string>
-        </property>
-        <property name="icon">
-         <iconset resource="res.qrc">
-          <normaloff>:/icons/db_comit_5329.ico</normaloff>:/icons/db_comit_5329.ico</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -162,7 +108,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Recovery DAY</string>
+         <string>Recovery DAY  (почасово 00:00-23:00 вкл.)</string>
         </property>
         <property name="icon">
          <iconset resource="res.qrc">
