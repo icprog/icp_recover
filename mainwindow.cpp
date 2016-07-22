@@ -34,17 +34,17 @@ struct uzel
 
     "LELAKI","172.16.223.2","fire_lelaki","LELAKI_SOU","vosn","","",
 
-    "GGPZ_GNED","172.16.57.69","fire_ggpz_gned","GGPZ_GNED_SOU","vosn","","",
-    "GGPZ_LELAKI_VHOD","172.16.57.70","fire_ggpz_lelaki_vhod","GGPZ_LELAKI_VHOD_SOU","vosn","","",
+    "GGPZ_GNED","172.16.223.18","fire_ggpz_gned","GGPZ_GNED_SOU","vosn","","",
+    "GGPZ_LELAKI_VHOD","172.16.223.19","fire_ggpz_lelaki_vhod","GGPZ_LELAKI_VHOD_SOU","vosn","","",
 //    "GGPZ_LELAKI_VIHOD","172.16.57.72","fire_ggpz_lelaki_vihod","GGPZ_LELAKI_VIHOD_SOU","vosn","","",
 
     "GGPZ_Z_OS","172.16.57.75","fire_ggpz_z_os","GGPZ_Z_OS_SOU","vosn","","",
     "GGPZ_Z_UPS","172.16.57.76","fire_ggpz_z_ups","GGPZ_Z_UPS_SOU","vosn","","",
     "GGPZ_Z_KSU","172.16.57.78","fire_ggpz_z_ksu","GGPZ_Z_KSU_SOU","1uvr2nord1mm","","",
-    "GZU1_GNED",  "172.16.57.20","fire_gzu1_gned","GZU1_GNED_SOU","vosn","","",
+    "GZU1_GNED",  "172.16.223.34","fire_gzu1_gned","GZU1_GNED_SOU","vosn","","",
     "GGPZ_4VOV","172.16.57.74","fire_ggpz_4vov","GGPZ_4VOV_SOU","4uvr","","",
     "YAROSHIV","172.16.48.100","fire_yaroshiv","YAROSHIV_SOU","vosn","","",
-    "TALAL_Z_YAROSHIV","172.16.48.102","fire_talal_z_yaroshiv","TALAL_Z_YAROSHIV_SOU","vosn","","",
+    "TALAL_Z_YAROSHIV","172.16.223.42","fire_talal_z_yaroshiv","TALAL_Z_YAROSHIV_SOU","vosn","","",
     "GGPZ_GAZ","172.16.57.72","fire_ggpz_gaz","GGPZ_GAZ","gaz","","",
 };
 //==========================================================================================
@@ -651,6 +651,9 @@ int RecoveryHour1Uvr2Nord1MM(uzel *p_uzel, uint year_,uint month_, uint day_,uin
     //NORD 1
     float d_rNORD1_VolFlow_avg;
     float d_rNORD1_Objem;
+    float d_rNORD1_Dens_avg;
+    float d_rNORD1_MassFlow_avg;
+    float d_rNORD1_Massa;
     //NORD 2
     float d_rNORD2_VolFlow_avg;
     float d_rNORD2_Objem;
@@ -722,22 +725,25 @@ int RecoveryHour1Uvr2Nord1MM(uzel *p_uzel, uint year_,uint month_, uint day_,uin
                     //NORD 1
                     d_rNORD1_VolFlow_avg=modbus_get_float(&tab_reg[13]);
                     d_rNORD1_Objem=modbus_get_float(&tab_reg[15]);
+                    d_rNORD1_Dens_avg=modbus_get_float(&tab_reg[17]);
+                    d_rNORD1_MassFlow_avg=modbus_get_float(&tab_reg[19]);
+                    d_rNORD1_Massa=modbus_get_float(&tab_reg[21]);
                     //NORD 2
-                    d_rNORD2_VolFlow_avg=modbus_get_float(&tab_reg[17]);
-                    d_rNORD2_Objem=modbus_get_float(&tab_reg[19]);
+                    d_rNORD2_VolFlow_avg=modbus_get_float(&tab_reg[23]);
+                    d_rNORD2_Objem=modbus_get_float(&tab_reg[25]);
 
                     //MM
-                    mass_total=modbus_get_float(&tab_reg[21]);
-                    vol_total=modbus_get_float(&tab_reg[23]);
-                    d_rMassFlow_avg=modbus_get_float(&tab_reg[25]);
-                    d_rVolFlow_avg=modbus_get_float(&tab_reg[27]);
-                    d_rDens_avg=modbus_get_float(&tab_reg[29]);
-                    d_rObjemRidRU_MM=modbus_get_float(&tab_reg[31]);
-                    d_rMassaRid_MM=modbus_get_float(&tab_reg[33]);
+                    mass_total=modbus_get_float(&tab_reg[27]);
+                    vol_total=modbus_get_float(&tab_reg[29]);
+                    d_rMassFlow_avg=modbus_get_float(&tab_reg[31]);
+                    d_rVolFlow_avg=modbus_get_float(&tab_reg[33]);
+                    d_rDens_avg=modbus_get_float(&tab_reg[35]);
+                    d_rObjemRidRU_MM=modbus_get_float(&tab_reg[37]);
+                    d_rMassaRid_MM=modbus_get_float(&tab_reg[39]);
 
-                    alarmsCode=tab_reg[35];
-                    alarmsTimeSec=tab_reg[36];
-                    WhichKoeffSaved=tab_reg[37];
+                    alarmsCode=tab_reg[41];
+                    alarmsTimeSec=tab_reg[42];
+                    WhichKoeffSaved=tab_reg[43];
 
 
                     QString connectionName=GetNextName();
@@ -761,11 +767,11 @@ int RecoveryHour1Uvr2Nord1MM(uzel *p_uzel, uint year_,uint month_, uint day_,uin
                                               "ALARMSCODE , ALARMSTIMESEC, WHICHKOEFFSAVED) "
                                               "VALUES ("+
                                               "'%i.%i.%i %i:00:00', %f, %f, %f, "+
-                                              "%f, %f, %f, %f, " +
+                                              "%f, %f, %f, %f, %f, %f, %f, " +
                                               "%f, %f, %f, %f, %f, %f, %f, " +
                                               "%i, %i, %i)").toStdString().c_str(),
                                               day,month,year,hour,m_rUvrVolFlow_avg,m_rUvrVolTotal,d_rUvrObjem,
-                                              d_rNORD1_VolFlow_avg,d_rNORD1_Objem,d_rNORD2_VolFlow_avg,d_rNORD2_Objem,
+                                              d_rNORD1_VolFlow_avg,d_rNORD1_Objem,d_rNORD1_Dens_avg,d_rNORD1_MassFlow_avg,d_rNORD1_Massa,d_rNORD2_VolFlow_avg,d_rNORD2_Objem,
                                               mass_total,vol_total,d_rMassFlow_avg,d_rVolFlow_avg,d_rDens_avg,d_rObjemRidRU_MM,d_rMassaRid_MM,
                                               alarmsCode, alarmsTimeSec, WhichKoeffSaved
                                               );
