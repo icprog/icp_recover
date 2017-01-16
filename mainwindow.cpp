@@ -46,6 +46,7 @@ struct uzel
     "YAROSHIV","172.16.48.100","fire_yaroshiv","YAROSHIV_SOU","vosn","","",
     "TALAL_Z_YAROSHIV","172.16.223.42","fire_talal_z_yaroshiv","TALAL_Z_YAROSHIV_SOU","vosn","","",
     "GGPZ_GAZ","172.16.57.72","fire_ggpz_gaz","GGPZ_GAZ","gaz","","",
+    "VON_MALODIV","172.16.55.34","fire_malodiv","VON_MALODIV_SOU","vosn","","",
 };
 //==========================================================================================
 QString GetNextName()
@@ -697,9 +698,9 @@ int RecoveryHour1Uvr2Nord1MM(uzel *p_uzel, uint year_,uint month_, uint day_,uin
         {
             Sleep(3000);
 
-            int res=modbus_read_registers(mb, 499, 27, tab_reg);
+            int res=modbus_read_registers(mb, 499, 47, tab_reg);
 
-            if (res!=27)
+            if (res!=47)
             {
                 ret=-3;
                 p_uzel->text="Error read from modbus";
@@ -760,9 +761,10 @@ int RecoveryHour1Uvr2Nord1MM(uzel *p_uzel, uint year_,uint month_, uint day_,uin
                                 QSqlQuery sqlQuery(db);
                                 QString query;
 
+
                                 query.sprintf(QString("INSERT INTO " + p_uzel->TableName + "(" +
                                               "DT, UVRVOLFLOW, UVRVOLTOTAL, UVROBJEM, " +
-                                              "NORD1_VOLFLOW, NORD1_OBJEM, NORD2_VOLFLOW, NORD2_OBJEM, "+
+                                              "NORD1_VOLFLOW, NORD1_OBJEM, NORD1_DENS, NORD1_MASSFLOW, NORD1_MASSA, NORD2_VOLFLOW, NORD2_OBJEM, "+
                                               "MM_MASSTOTAL, MM_VOLTOTAL, MM_MASSFLOW, MM_VOLFLOW, MM_DENS, MM_OBJEMRIDRU, MM_MASSARID, "+
                                               "ALARMSCODE , ALARMSTIMESEC, WHICHKOEFFSAVED) "
                                               "VALUES ("+
