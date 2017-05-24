@@ -230,6 +230,9 @@ int RecoveryHourVosn(uzel *p_uzel, uint year_,uint month_, uint day_,uint hour_)
 
     mb = modbus_new_tcp(p_uzel->IP_addr.toStdString().c_str(), 502);
 
+    modbus_set_response_timeout(mb, 10, 0); // до коннекта, так таймаут будет и для коннекта
+    modbus_set_byte_timeout(mb, 0, 0);
+
     if (modbus_connect(mb)!=0 )
     {
         //QMessageBox::information(this,"Test","Зв'язок з об'єктом відсутній!!!",QMessageBox::Ok);
@@ -475,6 +478,9 @@ int RecoveryHour1Uvr2Nord(uzel *p_uzel, uint year_,uint month_, uint day_,uint h
 
     mb = modbus_new_tcp(p_uzel->IP_addr.toStdString().c_str(), 502);
 
+    modbus_set_response_timeout(mb, 10, 0); // до коннекта, так таймаут будет и для коннекта
+    modbus_set_byte_timeout(mb, 0, 0);
+
     if (modbus_connect(mb)!=0 )
     {
         //QMessageBox::information(this,"Test","Зв'язок з об'єктом відсутній!!!",QMessageBox::Ok);
@@ -675,6 +681,9 @@ int RecoveryHour1Uvr2Nord1MM(uzel *p_uzel, uint year_,uint month_, uint day_,uin
 
 
     mb = modbus_new_tcp(p_uzel->IP_addr.toStdString().c_str(), 502);
+
+    modbus_set_response_timeout(mb, 10, 0); // до коннекта, так таймаут будет и для коннекта
+    modbus_set_byte_timeout(mb, 0, 0);
 
     if (modbus_connect(mb)!=0 )
     {
@@ -889,6 +898,9 @@ int RecoveryHour4Uvr(uzel *p_uzel, uint year_,uint month_, uint day_,uint hour_)
 
 
     mb = modbus_new_tcp(p_uzel->IP_addr.toStdString().c_str(), 502);
+
+    modbus_set_response_timeout(mb, 10, 0); // до коннекта, так таймаут будет и для коннекта
+    modbus_set_byte_timeout(mb, 0, 0);
 
     if (modbus_connect(mb)!=0 )
     {
@@ -1108,6 +1120,9 @@ int RecoveryHourGaz(uzel *p_uzel, uint year_,uint month_, uint day_,uint hour_)
 
 
     mb = modbus_new_tcp(p_uzel->IP_addr.toStdString().c_str(), 502);
+
+    modbus_set_response_timeout(mb, 10, 0); // до коннекта, так таймаут будет и для коннекта
+    modbus_set_byte_timeout(mb, 0, 0);
 
     if (modbus_connect(mb)!=0 )
     {
