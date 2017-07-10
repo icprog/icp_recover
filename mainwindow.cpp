@@ -1489,6 +1489,15 @@ void MainWindow::PushButtonRecoveryOneInRange()
 
         for(int hour=0;hour<24;++hour)
         {
+
+
+            QDateTime currDT=QDateTime::currentDateTime();
+            if (currDT.date()==date && currDT.time().hour() < hour)
+            {
+                ui->listWidget_history->addItem("          <<<<<<<    ---   Reached the current time   ---    >>>>>>>");
+                break;
+            }
+
             uzels[number_in_uzel_array].dt.sprintf("%.2u.%.2u.%.4u %.2u:00:00",day,month,year,hour);
 
             if (CheckHour(&uzels[number_in_uzel_array])>0)  //no data in DB
@@ -1512,8 +1521,9 @@ void MainWindow::PushButtonRecoveryOneInRange()
                 }
             }
 
-        ui->listWidget_history->scrollToBottom();
-        QApplication::processEvents();
+
+            ui->listWidget_history->scrollToBottom();
+            QApplication::processEvents();
         }
     }
 }
@@ -1539,6 +1549,14 @@ void MainWindow::PushButtonRecoveryAllInRange()
 
             for(int hour=0;hour<24;++hour)
             {
+
+                QDateTime currDT=QDateTime::currentDateTime();
+                if (currDT.date()==date && currDT.time().hour() < hour)
+                {
+                    ui->listWidget_history->addItem("          <<<<<<<    ---   Reached the current time   ---    >>>>>>>");
+                    break;
+                }
+
                 uzels[number_in_uzel_array].dt.sprintf("%.2u.%.2u.%.4u %.2u:00:00",day,month,year,hour);
 
                 if (CheckHour(&uzels[number_in_uzel_array])>0)  //no data in DB
@@ -1562,8 +1580,9 @@ void MainWindow::PushButtonRecoveryAllInRange()
                     }
                 }
 
-            ui->listWidget_history->scrollToBottom();
-            QApplication::processEvents();
+                ui->listWidget_history->scrollToBottom();
+                QApplication::processEvents();
+
             }
         }
     }
