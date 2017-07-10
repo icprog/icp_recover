@@ -23,6 +23,8 @@ public slots:
     void PushButtonCheckDay();
     void PushButtonRecoveryHour();
     void PushButtonRecoveryDay();
+    void PushButtonRecoveryOneInRange();
+    void PushButtonRecoveryAllInRange();
 
 
 };

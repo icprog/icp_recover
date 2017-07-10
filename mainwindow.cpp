@@ -69,6 +69,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButtonCheckDay,SIGNAL(clicked()),this,SLOT(PushButtonCheckDay()));
     //connect(ui->pushButtonRecoveryHour,SIGNAL(clicked()),this,SLOT(PushButtonRecoveryHour()));
     connect(ui->pushButtonRecoveryDay,SIGNAL(clicked()),this,SLOT(PushButtonRecoveryDay()));
+    connect(ui->pushButtonRecoveryOneInRange,SIGNAL(clicked()),this,SLOT(PushButtonRecoveryOneInRange()));
+    connect(ui->pushButtonRecoveryAllInRange,SIGNAL(clicked()),this,SLOT(PushButtonRecoveryAllInRange()));
+
     connect(ui->pushButtonClose,SIGNAL(clicked()),this,SLOT(close()));
 
     for(int i=0;i<sizeof(uzels)/sizeof(uzel);++i)
@@ -1463,6 +1466,106 @@ void MainWindow::PushButtonRecoveryDay()
 
     ui->listWidget_history->scrollToBottom();
     QApplication::processEvents();
+    }
+}
+//============================================================================================
+void MainWindow::PushButtonRecoveryOneInRange()
+{
+    int number_in_uzel_array=ui->listWidget->currentRow();
+
+    for (QDate date=ui->calendarWidget->selectedDate();date <= ui->calendarWidget_2->selectedDate();date=date.addDays(1))
+    {
+
+        int year=date.year();
+        int month=date.month();
+        int day=date.day();
+
+        QString tempdt;
+        tempdt.sprintf("%.2u.%.2u.%.4u",day,month,year);
+
+        ui->listWidget_history->addItem("          <<<<<<<       Recovery Day : " + uzels[number_in_uzel_array].ObjectName+" : " +tempdt +"       >>>>>>>");
+        ui->listWidget_history->item(ui->listWidget_history->count()-1)->setTextColor(Qt::darkGreen);
+
+
+        for(int hour=0;hour<24;++hour)
+        {
+            uzels[number_in_uzel_array].dt.sprintf("%.2u.%.2u.%.4u %.2u:00:00",day,month,year,hour);
+
+            if (CheckHour(&uzels[number_in_uzel_array])>0)  //no data in DB
+            {
+                uzels[number_in_uzel_array].text="Data is present in DB";
+                ui->listWidget_history->addItem(uzels[number_in_uzel_array].ObjectName+" : " + uzels[number_in_uzel_array].dt+ " === " +uzels[number_in_uzel_array].text);
+                ui->listWidget_history->item(ui->listWidget_history->count()-1)->setTextColor(Qt::red);
+            }
+            else
+            {
+
+                if (RecoveryHour(&uzels[number_in_uzel_array],year,month,day,hour)==1)
+                {
+                    ui->listWidget_history->addItem(uzels[number_in_uzel_array].ObjectName+" : " + uzels[number_in_uzel_array].dt+ " === " +uzels[number_in_uzel_array].text);
+                    ui->listWidget_history->item(ui->listWidget_history->count()-1)->setTextColor(Qt::black);
+                }
+                else
+                {
+                    ui->listWidget_history->addItem(uzels[number_in_uzel_array].ObjectName+" : " + uzels[number_in_uzel_array].dt+ " === " +uzels[number_in_uzel_array].text);
+                    ui->listWidget_history->item(ui->listWidget_history->count()-1)->setTextColor(Qt::red);
+                }
+            }
+
+        ui->listWidget_history->scrollToBottom();
+        QApplication::processEvents();
+        }
+    }
+}
+//============================================================================================
+void MainWindow::PushButtonRecoveryAllInRange()
+{
+
+    for (int number_in_uzel_array=0;number_in_uzel_array < ui->listWidget->count();number_in_uzel_array++)
+    {
+        for (QDate date=ui->calendarWidget->selectedDate();date <= ui->calendarWidget_2->selectedDate();date=date.addDays(1))
+        {
+
+            int year=date.year();
+            int month=date.month();
+            int day=date.day();
+
+            QString tempdt;
+            tempdt.sprintf("%.2u.%.2u.%.4u",day,month,year);
+
+            ui->listWidget_history->addItem("          <<<<<<<       Recovery Day : " + uzels[number_in_uzel_array].ObjectName+" : " +tempdt +"       >>>>>>>");
+            ui->listWidget_history->item(ui->listWidget_history->count()-1)->setTextColor(Qt::darkGreen);
+
+
+            for(int hour=0;hour<24;++hour)
+            {
+                uzels[number_in_uzel_array].dt.sprintf("%.2u.%.2u.%.4u %.2u:00:00",day,month,year,hour);
+
+                if (CheckHour(&uzels[number_in_uzel_array])>0)  //no data in DB
+                {
+                    uzels[number_in_uzel_array].text="Data is present in DB";
+                    ui->listWidget_history->addItem(uzels[number_in_uzel_array].ObjectName+" : " + uzels[number_in_uzel_array].dt+ " === " +uzels[number_in_uzel_array].text);
+                    ui->listWidget_history->item(ui->listWidget_history->count()-1)->setTextColor(Qt::red);
+                }
+                else
+                {
+
+                    if (RecoveryHour(&uzels[number_in_uzel_array],year,month,day,hour)==1)
+                    {
+                        ui->listWidget_history->addItem(uzels[number_in_uzel_array].ObjectName+" : " + uzels[number_in_uzel_array].dt+ " === " +uzels[number_in_uzel_array].text);
+                        ui->listWidget_history->item(ui->listWidget_history->count()-1)->setTextColor(Qt::black);
+                    }
+                    else
+                    {
+                        ui->listWidget_history->addItem(uzels[number_in_uzel_array].ObjectName+" : " + uzels[number_in_uzel_array].dt+ " === " +uzels[number_in_uzel_array].text);
+                        ui->listWidget_history->item(ui->listWidget_history->count()-1)->setTextColor(Qt::red);
+                    }
+                }
+
+            ui->listWidget_history->scrollToBottom();
+            QApplication::processEvents();
+            }
+        }
     }
 }
 //============================================================================================

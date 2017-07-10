@@ -6,17 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1158</width>
-    <height>734</height>
+    <width>1170</width>
+    <height>769</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Recovery reports data form ICPCON controllers</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="100,0">
       <item>
        <widget class="QListWidget" name="listWidget">
         <property name="sizePolicy">
@@ -36,27 +36,42 @@
        </widget>
       </item>
       <item>
-       <widget class="QCalendarWidget" name="calendarWidget">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="gridVisible">
-         <bool>false</bool>
-        </property>
-        <property name="horizontalHeaderFormat">
-         <enum>QCalendarWidget::ShortDayNames</enum>
-        </property>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QCalendarWidget" name="calendarWidget">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="gridVisible">
+           <bool>false</bool>
+          </property>
+          <property name="horizontalHeaderFormat">
+           <enum>QCalendarWidget::ShortDayNames</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCalendarWidget" name="calendarWidget_2">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -77,7 +92,7 @@
         <property name="font">
          <font>
           <family>Times New Roman</family>
-          <pointsize>13</pointsize>
+          <pointsize>10</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -91,8 +106,8 @@
         </property>
         <property name="iconSize">
          <size>
-          <width>48</width>
-          <height>48</height>
+          <width>32</width>
+          <height>32</height>
          </size>
         </property>
        </widget>
@@ -102,7 +117,7 @@
         <property name="font">
          <font>
           <family>Times New Roman</family>
-          <pointsize>13</pointsize>
+          <pointsize>10</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -116,8 +131,58 @@
         </property>
         <property name="iconSize">
          <size>
-          <width>48</width>
-          <height>48</height>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonRecoveryOneInRange">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Recovery ONE In Range</string>
+        </property>
+        <property name="icon">
+         <iconset resource="res.qrc">
+          <normaloff>:/icons/db_comit_5329.ico</normaloff>:/icons/db_comit_5329.ico</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonRecoveryAllInRange">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Recovery ALL in Range</string>
+        </property>
+        <property name="icon">
+         <iconset resource="res.qrc">
+          <normaloff>:/icons/kfilereplace.ico</normaloff>:/icons/kfilereplace.ico</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
          </size>
         </property>
        </widget>
@@ -127,7 +192,7 @@
         <property name="font">
          <font>
           <family>Times New Roman</family>
-          <pointsize>13</pointsize>
+          <pointsize>10</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -141,8 +206,8 @@
         </property>
         <property name="iconSize">
          <size>
-          <width>48</width>
-          <height>48</height>
+          <width>32</width>
+          <height>32</height>
          </size>
         </property>
        </widget>
@@ -150,6 +215,10 @@
      </layout>
     </item>
    </layout>
+   <zorder>listWidget_history</zorder>
+   <zorder>calendarWidget</zorder>
+   <zorder>calendarWidget_2</zorder>
+   <zorder>listWidget</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
